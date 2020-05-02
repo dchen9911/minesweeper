@@ -1,13 +1,13 @@
 from matplotlib.patches import Rectangle
 from matplotlib.collections import PatchCollection
 import matplotlib.pyplot as plt
+YELLOW = (1.0, 1.0,0.0, 0.9)
 
 class boardPlot:
     def __init__(self, width, height, board, fig, ax):
         self.width = width
         self.height = height
         self.board = board
-        
         
         self.fig = fig
         self.ax = ax
@@ -27,31 +27,58 @@ class boardPlot:
         cid = fig.canvas.mpl_connect('button_press_event', self.onclick)
     
     def onclick(self, event):
+        if event.inaxes != self.ax:
+            return
         x = int(event.xdata)
         y = int(event.ydata)
+        if x < 0 or x >= self.width or y < 0 or y > self.height:
+            return
         # print('you pressed', event.button, event.xdata, event.ydata)
-        if str(event.button) == 'MouseButton.RIGHT':
+        if str(event.button) == 'MouseButton.LEFT':
             tile = self.board.tiles[x][y]
+
             if not tile.opened:
-                tile.patch.set_facecolor('yellow')
-        elif str(event.button) == 'MouseButton.LEFT':
-            self.board.open_tile(x,y)
-            tiles = self.board.recently_opened
-            for tile in tiles:
-                patch = tile.patch
-                if tile.is_mine:
-                    patch.set_facecolor('red')
-                elif tile.n_neighbour_mines == 0:
-                    patch.set_facecolor('0.9')            
+                if tile.patch.get_facecolor() == YELLOW:
+                    if tile.opened:
+                        tile.patch.set_facecolor('0.9')
+                    else:
+                        tile.patch.set_facecolor('blue')
                 else:
-                    patch.set_facecolor('0.9')
-                    self.ax.text(tile.x + 0.5,tile.y + 0.5, 
-                                str(tile.n_neighbour_mines),
-                                horizontalalignment='center',
-                                verticalalignment='center',
-                                zorder=10)
+                    tile.patch.set_facecolor('yellow')
+            else:
+                tiles_to_open = tile.neighbours
+                n_yellow = 0
+                for n_tile in tiles_to_open:
+                    if n_tile.patch.get_facecolor() == YELLOW:
+                        n_yellow += 1
+                # print(n_yellow)
+                if n_yellow != tile.n_neighbour_mines:
+                    pass
+                else:
+                    for n_tile in tiles_to_open:
+                        if n_tile.patch.get_facecolor() == YELLOW:
+                            continue
+                        self.open_tile(n_tile.x, n_tile.y)
 
+        elif str(event.button) == 'MouseButton.RIGHT':
+            self.open_tile(x,y)
 
+    def open_tile(self, x, y):
+        self.board.open_tile(x,y)
+        tiles = self.board.recently_opened
+        for tile in tiles:
+            patch = tile.patch
+            if tile.is_mine:
+                patch.set_facecolor('red')
+            elif tile.n_neighbour_mines == 0:
+                patch.set_facecolor('0.9')            
+            else:
+                patch.set_facecolor('0.9')
+                self.ax.text(tile.x + 0.5,tile.y + 0.5, 
+                            str(tile.n_neighbour_mines),
+                            horizontalalignment='center',
+                            verticalalignment='center',
+                            zorder=10)
 
 class bogusEvent:
     def __init__(self, x, y):

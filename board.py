@@ -1,5 +1,5 @@
 import numpy as np
-
+import time
 class boardTile:
     def __init__(self, x, y):
         self.neighbours = []
@@ -14,14 +14,18 @@ class boardTile:
 
 
 class board:
-    def __init__(self, size_x, size_y, n_mines):
+    def __init__(self, width, height, n_mines):
         self.tiles = []
-        self.x = size_x
-        self.y = size_y
+        self.x = width
+        self.y = height
+        self.n_goal = width*height - n_mines
+        self.time_start = None
+        
         self.recently_opened = [] # list of recently opened tiles
-        for x in range(0, size_x):
+        self.n_tot_opened = 0
+        for x in range(0, width):
             row_tiles = []
-            for y in range(0, size_y):
+            for y in range(0, height):
                 new_tile = boardTile(x, y)
                 row_tiles.append(new_tile)
             self.tiles.append(row_tiles)
@@ -63,6 +67,8 @@ class board:
     
     # returns the number of tiles opened, -1 if tile was mine
     def open_tile(self, x, y):
+        if self.time_start is None:
+            self.time_start = time.time()
         self.recently_opened = []
         base_tile = self.tiles[x][y]
 
@@ -88,7 +94,14 @@ class board:
                         n_tile.opened = True
                         n_tiles_opened += 1
                         self.recently_opened.append(n_tile)
-        return len(self.recently_opened)
+        n_opened = len(self.recently_opened)
+        self.n_tot_opened += n_opened
+        if self.n_tot_opened == self.n_goal:
+            print("Well done!")
+            print("That took: {:.2f} seconds".format(time.time() - self.time_start))
+        elif self.n_tot_opened > self.n_goal:
+            raise ValueError("Somehow opened more than we needed")
+        return n_opened
         
     
 
