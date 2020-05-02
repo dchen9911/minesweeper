@@ -1,2 +1,3 @@
-for x,y in [[1,0], [2,3], [4,5]]:
-    print(x,y)
+x = 1.1
+y = x % 1
+print(y)

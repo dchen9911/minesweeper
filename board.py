@@ -9,11 +9,16 @@ class boardTile:
         self.y = y
         self.opened = False
     
+    def set_patch(self, patch):
+        self.patch = patch
+
+
 class board:
     def __init__(self, size_x, size_y, n_mines):
         self.tiles = []
         self.x = size_x
         self.y = size_y
+        self.recently_opened = [] # list of recently opened tiles
         for x in range(0, size_x):
             row_tiles = []
             for y in range(0, size_y):
@@ -58,17 +63,21 @@ class board:
     
     # returns the number of tiles opened, -1 if tile was mine
     def open_tile(self, x, y):
+        self.recently_opened = []
         base_tile = self.tiles[x][y]
+
+        if base_tile.opened:
+            return 0
+
+        base_tile.opened = True
+        self.recently_opened.append(base_tile)
+        n_tiles_opened = 1
+
         if base_tile.is_mine:
-            base_tile.opened = True
             print("Mined out")
             return -1
-        elif base_tile.opened:
-            return 0
         elif base_tile.n_neighbour_mines == 0:
-            n_tiles_opened = 0
             tiles_to_open = [base_tile]
-            n_tiles_opened = 1
             while len(tiles_to_open) != 0:
                 tile = tiles_to_open.pop()
                 tile.opened = True
@@ -78,11 +87,10 @@ class board:
                             tiles_to_open.append(n_tile)
                         n_tile.opened = True
                         n_tiles_opened += 1
-            return n_tiles_opened                      
-        else:
-            base_tile.opened = True
-            return 1
+                        self.recently_opened.append(n_tile)
+        return len(self.recently_opened)
         
+    
 
     def print_basic_layout(self, hide=True):
         mine_cnt = 0
