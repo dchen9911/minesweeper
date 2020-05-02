@@ -60,14 +60,31 @@ class board:
     def open_tile(self, x, y):
         base_tile = self.tiles[x][y]
         if base_tile.is_mine:
+            base_tile.opened = True
             print("Mined out")
             return -1
-        elif base_tile.n_neighbour_mines != 0:
-            self.base_tile
-            pass
+        elif base_tile.opened:
+            return 0
+        elif base_tile.n_neighbour_mines == 0:
+            n_tiles_opened = 0
+            tiles_to_open = [base_tile]
+            n_tiles_opened = 1
+            while len(tiles_to_open) != 0:
+                tile = tiles_to_open.pop()
+                tile.opened = True
+                for n_tile in tile.neighbours:
+                    if not n_tile.opened:
+                        if n_tile.n_neighbour_mines == 0:
+                            tiles_to_open.append(n_tile)
+                        n_tile.opened = True
+                        n_tiles_opened += 1
+            return n_tiles_opened                      
+        else:
+            base_tile.opened = True
+            return 1
         
 
-    def print_basic_layout(self):
+    def print_basic_layout(self, hide=True):
         mine_cnt = 0
         print('  ', end = '')
         for x in range(0, self.x):
@@ -77,18 +94,29 @@ class board:
             print(str(y) + '|', end='')
             for x in range(0, self.x):
                 tile = self.tiles[x][y]
-                if tile.is_mine:
-                    print('x', end=' ')
-                    mine_cnt += 1
+                if tile.opened:
+                    if tile.is_mine:
+                        print('x', end=' ')
+                        mine_cnt += 1
+                    else:
+                        print(tile.n_neighbour_mines, end=' ')
                 else:
-                    print(tile.n_neighbour_mines, end=' ')
+                    print('-', end = ' ')
             print()
-        print("Mine count: " + str(mine_cnt))
+        # print("Mine count: " + str(mine_cnt))
 
 
 if __name__ == "__main__":
     new_board = board(9,10,10)    
     new_board.print_basic_layout()
+    while True:
+        in_str = input()
+        x, y = list(map(int, in_str.split(' ')))
+        ret = new_board.open_tile(x, y)
+        new_board.print_basic_layout()
+        print("n tiles opened:" + str(ret))
+        if ret == -1:
+            break
 
 
 
