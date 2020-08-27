@@ -1,5 +1,6 @@
 import numpy as np
 import time
+
 class boardTile:
     def __init__(self, x, y):
         self.neighbours = []
@@ -11,7 +12,9 @@ class boardTile:
     
     def set_patch(self, patch):
         self.patch = patch
-
+    
+    def set_prob(self, prob): # probability tile is mine
+        self.prob = prob
 
 class board:
     def __init__(self, width, height, n_mines):
@@ -21,6 +24,8 @@ class board:
         self.n_goal = width*height - n_mines
         self.time_start = None
         
+        self.completed = False
+
         self.recently_opened = [] # list of recently opened tiles
         self.n_tot_opened = 0
         for x in range(0, width):
@@ -99,6 +104,8 @@ class board:
         if self.n_tot_opened == self.n_goal:
             print("Well done!")
             print("That took: {:.2f} seconds".format(time.time() - self.time_start))
+            self.completed = True
+            return time.time() - self.time_start
         elif self.n_tot_opened > self.n_goal:
             raise ValueError("Somehow opened more than we needed")
         return n_opened
