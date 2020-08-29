@@ -9,7 +9,7 @@ class boardPlot:
         self.width = width
         self.height = height
         self.board = board
-        self.mine_uncovered = False
+        self.finished = False
 
         self.fig = fig
         self.ax = ax
@@ -29,7 +29,7 @@ class boardPlot:
         cid = fig.canvas.mpl_connect('button_press_event', self.onclick)
     
     def onclick(self, event):
-        if self.board.completed or self.mine_uncovered:
+        if self.board.completed or self.finished:
             return
         if event.inaxes != self.ax:
             return
@@ -69,8 +69,9 @@ class boardPlot:
         plt.draw()
 
     def open_tile(self, x, y):
+        if self.finished:
+            return
         n_opened = self.board.open_tile(x,y)
-
         tiles = self.board.recently_opened
         for tile in tiles:
             patch = tile.patch
@@ -87,21 +88,23 @@ class boardPlot:
                             verticalalignment='center',
                             zorder=10)
         if n_opened == -1:
-            self.ax.text(width/2, height/2, ':(', size='large', c='white',
+            self.ax.text(self.width/2, self.height/2, ':(', size='large',
+                            c='white',
                             bbox=dict(facecolor='red', alpha=1, lw=0),
                             horizontalalignment='center',
                             verticalalignment='center',
                             zorder=10)
-            self.mine_uncovered = True
+            self.finished = True
             return
         elif self.board.completed:
             amt_time = '{:.2f}'.format(n_opened)
-            self.ax.text(width/2, height/2, ':) - '+amt_time + ' s', size='large', 
-                            c='white',
+            self.ax.text(self.width/2, self.height/2, ':) - '+amt_time + ' s', 
+                            size='large', c='white',
                             bbox=dict(facecolor='green', alpha=1, lw=0),
                             horizontalalignment='center',
                             verticalalignment='center',
                             zorder=10)
+            self.finished = True
             return
         return tiles
 
@@ -140,7 +143,7 @@ if __name__ == "__main__":
     from board import board
     width = 9
     height = 10
-    n_mines = 10
+    n_mines = 8
     new_board = board(width, height, n_mines)    
     new_board.print_basic_layout()
 

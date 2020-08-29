@@ -102,8 +102,8 @@ class board:
         n_opened = len(self.recently_opened)
         self.n_tot_opened += n_opened
         if self.n_tot_opened == self.n_goal:
-            print("Well done!")
-            print("That took: {:.2f} seconds".format(time.time() - self.time_start))
+            # print("Well done!")
+            # print("That took: {:.2f} seconds".format(time.time() - self.time_start))
             self.completed = True
             return time.time() - self.time_start
         elif self.n_tot_opened > self.n_goal:
