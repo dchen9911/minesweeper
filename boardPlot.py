@@ -1,3 +1,10 @@
+"""
+boardPlot.py
+
+Class file containing all the methods for generating and updating image of the 
+board as well as the interactivity
+"""
+
 from matplotlib.patches import Rectangle
 from matplotlib.collections import PatchCollection
 import matplotlib.pyplot as plt
@@ -132,7 +139,7 @@ class boardPlot:
             if self.board.completed:
                 break
 
-
+# for debugging
 class bogusEvent:
     def __init__(self, x, y, ax):
         self.xdata = x
@@ -145,7 +152,6 @@ if __name__ == "__main__":
     height = 10
     n_mines = 8
     new_board = board(width, height, n_mines)    
-    new_board.print_basic_layout()
 
     fig = plt.figure(figsize = (width/3, height/3))
     ax = plt.gca()

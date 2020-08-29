@@ -1,5 +1,16 @@
+"""
+board.py
+
+Class file containing code for backend/internal representation of the 
+minesweeper state
+
+The 'board' class is made up of many 'boardTile' objects which represent each
+tile on the board
+"""
+
 import numpy as np
 import time
+import random
 
 class boardTile:
     def __init__(self, x, y):
@@ -54,21 +65,16 @@ class board:
                         neighbour_tile.n_neighbour_mines += 1
 
     # n is the number of mines
-    def set_mines(self, n):
-        # random generate numbers 
-        mine_coords = []
-        while (1):
-            n_gen = n - len(mine_coords)
-            x_coords = np.random.randint(0, self.x, n_gen)
-            y_coords = np.random.randint(0, self.y, n_gen)
-            coords = list(zip(x_coords, y_coords))
-            mine_coords += coords
-            mine_coords = list(set(mine_coords))
-            if len(mine_coords) == n:
-                break
-        for x,y in mine_coords:
-            self.tiles[x][y].is_mine = True
-        self.mine_coords = mine_coords
+    def set_mines(self, n):       
+        tile_list_flat = [tile for row in self.tiles for tile in row]
+        random.shuffle(tile_list_flat)
+        if n > len(tile_list_flat):
+            raise ValueError("Too many mines, not enough spaces")
+        
+        mine_list = tile_list_flat[0:n]
+
+        for mine_tile in mine_list:
+            mine_tile.is_mine = True
     
     # returns the number of tiles opened, -1 if tile was mine
     def open_tile(self, x, y):
@@ -111,7 +117,7 @@ class board:
         return n_opened
         
     
-
+    # for debugging
     def print_basic_layout(self, hide=True):
         mine_cnt = 0
         print('  ', end = '')
@@ -145,11 +151,3 @@ if __name__ == "__main__":
         print("n tiles opened:" + str(ret))
         if ret == -1:
             break
-
-
-
-        
-
-                
-
-
