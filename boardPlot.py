@@ -149,8 +149,8 @@ class bogusEvent:
 if __name__ == "__main__":
     from board import board
     width = 9
-    height = 10
-    n_mines = 8
+    height = 9
+    n_mines = 10
     new_board = board(width, height, n_mines)    
 
     fig = plt.figure(figsize = (width/3, height/3))
